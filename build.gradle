@@ -1,0 +1,43 @@
+/**This installs nodeJS via a plugin**/
+
+plugins {
+	id"com.moowork.node" version "1.2.0"
+}
+
+/**This instructs the node plugin to downlaod and install nodeJS and NPM, it will package them for the project **/
+
+node {
+	download = true
+}
+
+/**All we really need to do now is ensure the build task calls some of the tasks from the node plugin to actually execute the build logic**/
+
+task build 
+
+/** Zip the files for a single deployment **/
+
+task zip(type: Zip) {
+	from  ('.') {
+		include "*"
+		include "bin/**"
+		include "data/**"
+		include "node_modules/**"
+		include "public/**"
+		include "routes/**"
+		include "views/**"
+		}
+destinationDir(file("dist"))
+baseName "trainSchedule"
+}
+
+build.dependsOn zip
+zip.dependsOn npm_build
+build.dependsOn npm_build
+npm_build.dependsOn npmInstall
+
+/**We now need to make sure that it runs some automated tests**/
+
+npm_build.dependsOn npm_test
+npm_test.dependsOn npmInstall
+
+
